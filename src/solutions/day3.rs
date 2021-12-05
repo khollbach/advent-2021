@@ -10,6 +10,9 @@ pub fn main() {
 
     let (gamma, epsilon) = part_1(&lines);
     println!("{}", gamma * epsilon);
+
+    let (o2, co2) = part_2(&lines);
+    println!("{}", o2 * co2);
 }
 
 fn part_1(lines: &[String]) -> (u32, u32) {
@@ -40,4 +43,38 @@ fn part_1(lines: &[String]) -> (u32, u32) {
     let epsilon = gamma ^ mask;
 
     (gamma, epsilon)
+}
+
+fn part_2(lines: &[String]) -> (u32, u32) {
+    let o2 = filter_down(lines, true);
+    let co2 = filter_down(lines, false);
+
+    (o2, co2)
+}
+
+/// Partition on the 1st bit, then the 2nd bit, ... etc, until there's only one choice left.
+fn filter_down(lines: &[String], majority: bool) -> u32 {
+    let mut candidates: Vec<&str> = lines.iter().map(String::as_str).collect();
+
+    let mut i = 0;
+    while candidates.len() > 1 {
+        let (maj, min) = partition(candidates.into_iter(), i);
+        candidates = if majority { maj } else { min };
+
+        i += 1;
+    }
+
+    u32::from_str_radix(&candidates[0], 2).unwrap()
+}
+
+/// Partition on the ith bit. Return (majority, minority).
+fn partition<'a>(lines: impl Iterator<Item=&'a str>, i: usize) -> (Vec<&'a str>, Vec<&'a str>) {
+    let (zeros, ones) = lines.partition::<Vec<_>, _>(|line| &line[i..i + 1] == "0");
+
+    // Break ties in favour of ones being majority.
+    if ones.len() >= zeros.len() {
+        (ones, zeros)
+    } else {
+        (zeros, ones)
+    }
 }
