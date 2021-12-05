@@ -58,7 +58,7 @@ fn filter_down(lines: &[String], majority: bool) -> u32 {
 
     let mut i = 0;
     while candidates.len() > 1 {
-        let (maj, min) = partition(candidates.into_iter(), i);
+        let (maj, min) = partition(candidates, i);
         candidates = if majority { maj } else { min };
 
         i += 1;
@@ -68,8 +68,8 @@ fn filter_down(lines: &[String], majority: bool) -> u32 {
 }
 
 /// Partition on the ith bit. Return (majority, minority).
-fn partition<'a>(lines: impl Iterator<Item=&'a str>, i: usize) -> (Vec<&'a str>, Vec<&'a str>) {
-    let (zeros, ones) = lines.partition::<Vec<_>, _>(|line| &line[i..i + 1] == "0");
+fn partition(lines: Vec<&str>, i: usize) -> (Vec<&str>, Vec<&str>) {
+    let (zeros, ones) = lines.iter().partition::<Vec<_>, _>(|line| &line[i..i + 1] == "0");
 
     // Break ties in favour of ones being majority.
     if ones.len() >= zeros.len() {
