@@ -9,7 +9,8 @@ mod cache;
 pub fn main() {
     let (draws, boards) = read_input(io::stdin().lock());
 
-    println!("{}", part_1(&draws, boards));
+    println!("{}", part_1(&draws, boards.clone()));
+    println!("{}", part_2(&draws, boards));
 }
 
 fn part_1(draws: &[u32], mut boards: Vec<Board>) -> u32 {
@@ -31,6 +32,34 @@ fn part_1(draws: &[u32], mut boards: Vec<Board>) -> u32 {
     panic!("No winning board.");
 }
 
+fn part_2(draws: &[u32], mut boards: Vec<Board>) -> u32 {
+    let cache = Cache::new(&boards);
+    let mut seen = HashSet::new();
+
+    let mut winners = vec![false; boards.len()];
+    let mut num_winners = 0;
+
+    for &draw in draws {
+        seen.insert(draw);
+
+        for &hit in cache.hits.get(&draw).unwrap_or(&vec![]) {
+            let i = hit.board_idx;
+
+            if boards[i].mark(hit.row, hit.col) && !winners[i]  {
+                winners[i] = true;
+                num_winners += 1;
+
+                if num_winners == boards.len() {
+                    return boards[i].sum_unmarked(&seen) * draw;
+                }
+            }
+        }
+    }
+
+    panic!("Not all boards won. {} out of {}.", num_winners, boards.len());
+}
+
+#[derive(Debug, Clone)]
 pub struct Board {
     grid: Vec<Vec<u32>>,
     row_hits: Vec<u32>,
