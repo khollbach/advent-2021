@@ -8,7 +8,8 @@ fn main() {
 
     let usage = || {
         eprintln!();
-        eprint_usage(&prog_name);
+        eprintln!("Usage: `{} <num>`", prog_name);
+        eprintln!("where <num> is a number from 1 through 25.");
         process::exit(1)
     };
 
@@ -25,14 +26,10 @@ fn main() {
             usage()
         }
         Err(_) => {
-            eprintln!("Not a u32: {}", &args[0]);
+            eprintln!("Not a u32: {}", args[0]);
             usage()
         }
     };
 
     advent_2021::solve(day);
-}
-
-fn eprint_usage(prog_name: &str) {
-    eprintln!("Usage: `{} <num>`\nwhere <num> is a number from 1 through 25.", prog_name);
 }
