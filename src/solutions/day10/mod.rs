@@ -1,6 +1,9 @@
 use std::io;
 use std::io::BufRead;
 use crate::solutions::day10::ParseResult::{Corrupt, Incomplete};
+use crate::solutions::day10::symbol::{Open, Symbol};
+
+mod symbol;
 
 fn read_input(input: impl BufRead) -> Vec<String> {
     input.lines().map(Result::unwrap).collect()
@@ -47,16 +50,16 @@ fn parse(line: &str) -> ParseResult {
     // Track open symbols that haven't yet "found their match".
     let mut stack = vec![];
 
-    for c in line.chars() {
-        if "([{<".contains(c) { // open
-            stack.push(c);
-        } else {
-            assert!(")]}>".contains(c)); // close
-            let open = stack.pop();
+    for sym in line.chars().map(Symbol::new) {
+        match sym {
+            Symbol::Open(open) => stack.push(open),
+            Symbol::Close(close) => {
+                let open = stack.pop();
 
-            // Is c the right kind of closing symbol?
-            if open.map(open_to_close) != Some(c) {
-                return Corrupt(corruption_score(c));
+                // Do we have the right kind of closing symbol?
+                if open.map(Open::to_close) != Some(close) {
+                    return Corrupt(close.corruption_score());
+                }
             }
         }
     }
@@ -69,45 +72,13 @@ fn parse(line: &str) -> ParseResult {
     }
 }
 
-fn open_to_close(open: char) -> char {
-    match open {
-        '(' => ')',
-        '[' => ']',
-        '{' => '}',
-        '<' => '>',
-        _ => panic!("Not an opening symbol: {}", open),
-    }
-}
-
-fn corruption_score(close: char) -> u32 {
-    match close {
-        ')' => 3,
-        ']' => 57,
-        '}' => 1197,
-        '>' => 25137,
-        _ => panic!("Not a closing symbol: {}", close),
-    }
-}
-
-fn completion_score(mut stack: Vec<char>) -> u64 {
+fn completion_score(mut stack: Vec<Open>) -> u64 {
     let mut score = 0;
 
     while let Some(open) = stack.pop() {
-        let close = open_to_close(open);
-
         score *= 5;
-        score += char_completion_score(close);
+        score += open.to_close().completion_score();
     }
 
     score
-}
-
-fn char_completion_score(close: char) -> u64 {
-    match close {
-        ')' => 1,
-        ']' => 2,
-        '}' => 3,
-        '>' => 4,
-        _ => panic!("Not a closing symbol: {}", close),
-    }
 }
