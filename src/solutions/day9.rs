@@ -1,14 +1,10 @@
 use std::collections::HashSet;
 use std::io;
 use std::io::BufRead;
+use crate::common::input::read_digit_grid;
 
 fn read_input(input: impl BufRead) -> HeightMap {
-    let grid = input.lines().map(|line| {
-        line.unwrap().chars().map(|c| {
-            c.to_digit(10).unwrap()
-        }).collect()
-    }).collect();
-
+    let grid = read_digit_grid(input);
     HeightMap { grid }
 }
 
