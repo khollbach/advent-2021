@@ -9,18 +9,20 @@ fn read_input(input: impl BufRead) -> Octopi {
 }
 
 pub fn main() {
-    let mut octopi = read_input(io::stdin().lock());
+    let octopi = read_input(io::stdin().lock());
 
-    println!("{}", octopi.simulate(100));
+    println!("{}", octopi.clone().simulate(100));
+    println!("{}", octopi.sychronize());
 }
 
+#[derive(Clone)]
 struct Octopi {
     grid: Vec<Vec<u32>>,
 }
 
 impl Octopi {
     /// Simulate many steps, and return the total number of flashes.
-    fn simulate(&mut self, num_steps: usize) -> u32 {
+    fn simulate(mut self, num_steps: usize) -> usize {
         let mut total = 0;
 
         for _ in 0..num_steps {
@@ -30,8 +32,21 @@ impl Octopi {
         total
     }
 
+    /// Return the first step number (1-indexed!) where all octopi flash.
+    fn sychronize(mut self) -> usize {
+        let num_octopi = self.grid.len() * self.grid[0].len();
+
+        for step in 1.. {
+            if self.step() == num_octopi {
+                return step;
+            }
+        }
+
+        unreachable!();
+    }
+
     /// Simulate one step, and return the number of flashes.
-    fn step(&mut self) -> u32 {
+    fn step(&mut self) -> usize {
         let mut to_flash = vec![];
 
         // Initial increment.
