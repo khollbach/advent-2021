@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 use std::io;
 use std::io::BufRead;
+use crate::common::grid;
 use crate::common::input::read_digit_grid;
 
 fn read_input(input: impl BufRead) -> HeightMap {
@@ -70,24 +71,7 @@ impl HeightMap {
 
     /// 4-way directions: up/down/left/right.
     fn neighbors(&self, i: usize, j: usize) -> impl Iterator<Item=(usize, usize)> {
-        let i = i as isize;
-        let j = j as isize;
-        let (r, c) = self.dims();
-        let r = r as isize;
-        let c = c as isize;
-
-        [(-1, 0), (1, 0), (0, -1), (0, 1)].into_iter().filter_map(move |(di, dj)| {
-            let i2 = i + di;
-            let j2 = j + dj;
-
-            if 0 <= i2 && i2 < r &&
-                0 <= j2 && j2 < c
-            {
-                Some((i2 as usize, j2 as usize))
-            } else {
-                None
-            }
-        })
+        grid::neighbors_4_way(&self.grid, i, j)
     }
 }
 
