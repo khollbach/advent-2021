@@ -14,6 +14,7 @@ pub fn main() {
     let graph = Graph::new(edges.into_iter());
 
     println!("{}", graph.part_1());
+    println!("{}", graph.part_2());
 }
 
 #[derive(Debug, Default)]
@@ -54,10 +55,54 @@ impl Graph {
         *curr_path.entry(cave).or_default() += 1;
 
         let ret = self.edges[cave].iter().filter_map(|other| {
+            // Don't re-visit small caves.
             if is_small(other) && curr_path.contains_key(other.as_str()) {
                 None
             } else {
                 Some(self.dfs(other, curr_path))
+            }
+        }).sum();
+
+        let freq = curr_path.get_mut(cave).unwrap();
+        *freq -= 1;
+        if *freq == 0 {
+            curr_path.remove(cave);
+        }
+
+        ret
+    }
+
+    /// Return the number of paths from "start" to "end".
+    ///
+    /// Same rules as part 1, except a path may re-visit a single small cave once.
+    fn part_2(&self) -> u32 {
+        let mut curr_path = HashMap::new();
+        self.dfs_part_2("start", &mut curr_path, false)
+    }
+
+    /// Helper function for `part_2`.
+    ///
+    /// How many paths from here to end?
+    fn dfs_part_2<'a>(&'a self, cave: &'a str, curr_path: &mut HashMap<&'a str, u32>, revisited_small: bool) -> u32 {
+        if cave == "end" {
+            return 1;
+        }
+
+        *curr_path.entry(cave).or_default() += 1;
+
+        let ret = self.edges[cave].iter().filter_map(|other| {
+            let small_repeat = is_small(other) && curr_path.contains_key(other.as_str());
+
+            // Never re-visit start.
+            if other == "start" {
+                None
+            }
+            // Don't re-visit a small cave if we've already used up our quota.
+            else if small_repeat && revisited_small {
+                None
+            }
+            else {
+                Some(self.dfs_part_2(other, curr_path, revisited_small || small_repeat))
             }
         }).sum();
 
