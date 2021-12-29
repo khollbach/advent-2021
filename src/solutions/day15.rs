@@ -14,6 +14,7 @@ pub fn main() {
     let grid = read_input(io::stdin().lock());
 
     println!("{}", grid.part_1());
+    println!("{}", grid.part_2());
 }
 
 struct Grid {
@@ -28,6 +29,10 @@ impl Grid {
         let end = (self.grid.len() - 1, self.grid[0].len() - 1);
 
         self.shortest_path(start, end).unwrap()
+    }
+
+    fn part_2(&self) -> u32 {
+        self.to_5x5().part_1()
     }
 
     /// Return the total cost of the least-cost path from start to end.
@@ -67,5 +72,45 @@ impl Grid {
     /// 4-way directions.
     fn neighbors(&self, (i, j): Point) -> impl Iterator<Item=Point> {
         neighbors_4_way(&self.grid, i, j)
+    }
+
+    /// Create a new grid (25x larger than self) based on the rules of the puzzle.
+    fn to_5x5(&self) -> Self {
+        let r = self.grid.len();
+        let c = self.grid[0].len();
+
+        let mut new_grid = Grid {
+            grid: vec![vec![0; c * 5]; r * 5]
+        };
+
+        for i in 0..5 {
+            for j in 0..5 {
+                let increment = i + j;
+                let offset = (r * i, c * j);
+                new_grid.fill(self, increment as u32, offset);
+            }
+        }
+
+        new_grid
+    }
+
+    /// Helper function for `to_5x5`.
+    ///
+    /// Fill a region of the current grid using `other`.
+    /// The top-left corner of the region is given by the offset point.
+    ///
+    /// The entries are also increased by `increment`, and then wrapped (1-indexed)
+    /// if they exceed 9.
+    fn fill(&mut self, other: &Grid, increment: u32, (i_offset, j_offset): Point) {
+        for i in 0..other.grid.len() {
+            for j in 0..other.grid[0].len() {
+                let x = other.grid[i][j] + increment;
+
+                // Wrap x to be in the range 1..=9
+                let x = (x - 1) % 9 + 1;
+
+                self.grid[i_offset + i][j_offset + j] = x;
+            }
+        }
     }
 }
