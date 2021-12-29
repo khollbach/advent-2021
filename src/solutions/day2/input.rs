@@ -1,15 +1,13 @@
 use std::io::BufRead;
+use itertools::Itertools;
 use crate::solutions::day2::Dir;
 use crate::solutions::day2::Dir::{Down, Forward, Up};
 
 pub fn read_input(input: impl BufRead) -> Vec<(Dir, u32)> {
     input.lines().map(|line| {
-        let mut words = line.as_ref().unwrap().split(' ');
-        let dir = Dir::new(words.next().unwrap());
-        let num = words.next().unwrap().parse().unwrap();
-        assert!(words.next().is_none());
+        let (dir, num) = line.as_ref().unwrap().split(' ').collect_tuple().unwrap();
 
-        (dir, num)
+        (Dir::new(dir), num.parse().unwrap())
     }).collect()
 }
 
