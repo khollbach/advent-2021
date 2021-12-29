@@ -6,11 +6,11 @@ fn main() {
     let prog_name = args.next().unwrap();
     let args: Vec<_> = args.collect();
 
-    let usage = || {
+    let usage = || -> ! {
         eprintln!();
         eprintln!("Usage: `{} <num>`", prog_name);
         eprintln!("where <num> is a number from 1 through 25.");
-        process::exit(1)
+        process::exit(1);
     };
 
     if args.len() != 1 {
@@ -23,11 +23,11 @@ fn main() {
             n
         } else {
             eprintln!("Not a number from 1 through 25: {}", n);
-            usage()
+            usage();
         }
         Err(_) => {
             eprintln!("Not a u32: {}", args[0]);
-            usage()
+            usage();
         }
     };
 
