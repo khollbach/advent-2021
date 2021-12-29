@@ -34,8 +34,6 @@ fn min_fuel(positions: &[i32], cost_fn: impl Fn(u32) -> u32) -> u32 {
 }
 
 /// 1 + 2 + ... + n
-///
-/// We could make this O(1) with a closed formula, but we don't need to for this problem.
 fn triangular_number(n: u32) -> u32 {
-    (1..=n).sum()
+    n * (n + 1) / 2
 }
