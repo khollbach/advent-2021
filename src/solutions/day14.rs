@@ -30,10 +30,14 @@ fn read_input(input: impl BufRead) -> (String, Rules) {
 pub fn main() {
     let (polymer, rules) = read_input(io::stdin().lock());
 
-    println!("{}", part_1(&polymer, &rules));
+    println!("{}", simulate(&polymer, &rules, 10));
+    println!("{}", simulate(&polymer, &rules, 40));
 }
 
-fn part_1(polymer: &str, rules: &Rules) -> u32 {
+/// Simulate n transformations of the initial polymer string.
+///
+/// Return the freq of the most common char minus the least common.
+fn simulate(polymer: &str, rules: &Rules, num_steps: usize) -> u64 {
     assert!(!polymer.is_empty());
 
     // Initial frequencies of character pairs.
@@ -42,12 +46,12 @@ fn part_1(polymer: &str, rules: &Rules) -> u32 {
         *freqs.entry((a, b)).or_default() += 1;
     }
 
-    for _ in 0..10 {
+    for _ in 0..num_steps {
         step(&mut freqs, rules);
     }
 
     // Count the first character in each pair.
-    let mut individual_freqs = HashMap::<_, u32>::new();
+    let mut individual_freqs = HashMap::<_, u64>::new();
     for ((a, _), f) in freqs {
         *individual_freqs.entry(a).or_default() += f;
     }
@@ -65,7 +69,7 @@ fn part_1(polymer: &str, rules: &Rules) -> u32 {
 }
 
 /// Update frequencies of each pair according to the rules.
-fn step(freqs: &mut HashMap<(char, char), u32>, rules: &Rules) {
+fn step(freqs: &mut HashMap<(char, char), u64>, rules: &Rules) {
     let mut new_freqs = HashMap::new();
 
     for ((a, b), f) in mem::take(freqs) {
