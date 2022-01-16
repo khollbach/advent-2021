@@ -27,6 +27,7 @@ pub fn main() {
     let target = read_input(io::stdin().lock());
 
     println!("{}", part_1(target));
+    println!("{}", part_2(target));
 }
 
 /// Inclusive ranges.
@@ -48,11 +49,20 @@ impl Target {
 }
 
 fn part_1(target: Target) -> i32 {
-    (0..=target.x_max).flat_map(|dx| {
+    sucessful_launches(target).max().unwrap()
+}
+
+fn part_2(target: Target) -> usize {
+    sucessful_launches(target).count()
+}
+
+/// For each sucessful launch, return it's peak height.
+fn sucessful_launches(target: Target) -> impl Iterator<Item=i32> {
+    (0..=target.x_max).flat_map(move |dx| {
         (target.y_min ..= -target.y_min).filter_map(move |dy| {
             launch(dx, dy, target)
         })
-    }).max().unwrap()
+    })
 }
 
 /// If we hit the target, return the peak height; else None.
