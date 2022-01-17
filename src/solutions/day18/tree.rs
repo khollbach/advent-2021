@@ -6,7 +6,7 @@ mod parse;
 mod print;
 
 /// A node in a "full" tree.
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Tree {
     Pair {
         left: Box<Tree>,
