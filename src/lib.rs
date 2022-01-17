@@ -23,6 +23,7 @@ pub fn solve(day: u32) {
         15 => day15::main(),
         16 => day16::main(),
         17 => day17::main(),
+        18 => day18::main(),
         _ => panic!("Not yet implemented: Day {}", day),
     }
 }
