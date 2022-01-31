@@ -8,6 +8,7 @@ pub enum Pixel {
 
 pub type Mask = [Pixel; 2usize.pow(9)];
 
+#[derive(Clone)]
 pub struct Grid {
     main_pixels: HashMap<Point, Pixel>,
     background_color: Pixel,
